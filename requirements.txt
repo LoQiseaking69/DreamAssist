@@ -1,7 +1,5 @@
 pyinstaller
 PyQt5
 openai>=0.10
-
-# Add any other dependencies as needed, for example:
 requests
 numpy
