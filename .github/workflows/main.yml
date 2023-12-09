@@ -43,7 +43,8 @@ jobs:
         shell: pwsh
 
       - name: Copy NSIS Script
-        run: cp installer.nsi ${{ github.workspace }}/
+        run: cp installer.nsi "${{ github.workspace }}/installer.nsi"
+        shell: pwsh
 
       - name: Check NSIS Installation
         run: |
