@@ -43,7 +43,10 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
+        pyinstaller --onefile --windowed \
+          --add-data "Favicon.png;." \
+          --add-data "cyber_background.png;." \
+          --add-data "Bg.PNG;." TUI.py
       working-directory: ${{ github.workspace }}
       shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
       env:
