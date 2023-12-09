@@ -35,13 +35,15 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed `
+          $Env:OPEN_AI_KEY = "${{ secrets.OPEN_AI_KEY }}"
+          pyinstaller --onefile --windowed --name DreamAssist `
             --add-data "Favicon.png;." `
             --add-data "cyber_background.png;." `
             --add-data "Bg.PNG;." TUI.py
         shell: pwsh
-        env:
-          OPEN_AI_KEY: ${{ secrets.OPEN_AI_KEY }}
+
+      - name: Copy NSIS Script
+        run: cp installer.nsi ${{ github.workspace }}/
 
       - name: Check NSIS Installation
         run: |
