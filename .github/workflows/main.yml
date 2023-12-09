@@ -3,8 +3,7 @@ name: Build and Package with PyInstaller
 on:
   push:
     branches:
-      - main
-      - master
+      - [main, master]
     paths:
       - '**.py'
       - '**/requirements.txt'
