@@ -1,0 +1,47 @@
+name: Package Application with PyInstaller
+
+on: 
+  push:
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.12']  # Example Python versions
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache Python packages
+      uses: actions/cache@v2
+      with:
+        path: ~\AppData\Local\pip\Cache
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run PyInstaller
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPEN_AI_KEY }}
+      run: |
+        pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: packaged-app-${{ github.run_id }}
+        path: dist/
