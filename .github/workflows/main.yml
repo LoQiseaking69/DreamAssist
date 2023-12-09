@@ -7,7 +7,7 @@ on:
       - master
     paths:
       - '**.py'
-      - 'requirements.txt'
+      - '**/requirements.txt'
 
 jobs:
   build-and-package:
