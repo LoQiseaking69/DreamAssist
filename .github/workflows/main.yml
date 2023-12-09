@@ -10,11 +10,7 @@ jobs:
   build-and-package:
     name: Build and Package
     runs-on: windows-latest
-    env:
-      PYTHON_VERSION: '3.11'
-      PIP_CACHE_DIR: '~/.cache/pip'
-      BUILD_DIR: 'dist'
-      NSIS_SCRIPT: 'installer.nsi'
+    environment: DAui
 
     steps:
       - name: Checkout Repository
@@ -23,12 +19,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.11'
 
       - name: Cache Python Dependencies
         uses: actions/cache@v2
         with:
-          path: ${{ env.PIP_CACHE_DIR }}
+          path: ~/.cache/pip
           key: python-dependencies-${{ hashFiles('**/requirements.txt') }}
           restore-keys: python-dependencies-
 
@@ -39,14 +35,13 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          & pyinstaller --onefile --windowed `
+          pyinstaller --onefile --windowed `
             --add-data "Favicon.png;." `
             --add-data "cyber_background.png;." `
             --add-data "Bg.PNG;." TUI.py
         shell: pwsh
-
-      - name: Copy NSIS Script
-        run: cp .github/workflows/${{ env.NSIS_SCRIPT }} ${{ github.workspace }}/${{ env.NSIS_SCRIPT }}
+        env:
+          OPEN_AI_KEY: ${{ secrets.OPEN_AI_KEY }}
 
       - name: Check NSIS Installation
         run: |
@@ -54,12 +49,14 @@ jobs:
             Write-Host "NSIS not found at ${{ secrets.NSIS_PATH }}. Exiting..."
             exit 1
           }
+        shell: pwsh
 
       - name: Compile Installer
-        run: ${{ secrets.NSIS_PATH }} "${{ github.workspace }}/${{ env.NSIS_SCRIPT }}" -Wait
+        run: ${{ secrets.NSIS_PATH }} "${{ github.workspace }}/installer.nsi" -Wait
+        shell: pwsh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Packaged-App-${{ github.run_id }}
-          path: ${{ env.BUILD_DIR }}/
+          path: dist/
