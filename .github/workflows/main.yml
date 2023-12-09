@@ -33,13 +33,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build with PyInstaller
+      - name: Embed OPEN_AI_KEY and Build with PyInstaller
         run: |
           $Env:OPEN_AI_KEY = "${{ secrets.OPEN_AI_KEY }}"
+          echo "OPEN_AI_KEY=$Env:OPEN_AI_KEY" > .env
           pyinstaller --onefile --windowed --name DreamAssist `
-            --add-data "Favicon.png;." `
-            --add-data "cyber_background.png;." `
-            --add-data "Bg.PNG;." TUI.py
+            --add-data "Assets/Favicon.ico;Assets" `
+            --add-data "Assets/Cjet.bmp;Assets" `
+            --add-data ".env;." TUI.py
         shell: pwsh
 
       - name: Copy NSIS Script
