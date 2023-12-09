@@ -3,22 +3,17 @@ name: Build and Package with PyInstaller
 on:
   push:
     branches:
-      - main  # Adjust to your main branch name
-  workflow_dispatch:
-
-env:
-  PYTHON_VERSION: '3.11'
-  PIP_CACHE_DIR: '~/.cache/pip'
-  BUILD_DIR: 'dist'
-  NSIS_SCRIPT: 'installer.nsi'
+      - main
 
 jobs:
   build-and-package:
     name: Build and Package
     runs-on: windows-latest
     env:
-      OPEN_AI_KEY: ${{ secrets.OPEN_AI_KEY }}
-      NSIS_PATH: ${{ secrets.NSIS_PATH }}
+      PYTHON_VERSION: '3.11'
+      PIP_CACHE_DIR: '~/.cache/pip'
+      BUILD_DIR: 'dist'
+      NSIS_SCRIPT: 'installer.nsi'
 
     steps:
     - name: Checkout Repository
@@ -42,34 +37,21 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build with PyInstaller
-      run: |
-        pyinstaller --onefile --windowed \
-          --add-data "Favicon.png;." \
-          --add-data "cyber_background.png;." \
-          --add-data "Bg.PNG;." TUI.py
+      run: pyinstaller-config.yml
       working-directory: ${{ github.workspace }}
-      shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
-      env:
-        PYTHON_VERSION: 3.11
-        PIP_CACHE_DIR: ~/.cache/pip
-        BUILD_DIR: dist
-        NSIS_SCRIPT: installer.nsi
-        pythonLocation: C:\hostedtoolcache\windows\Python\3.11.7\x64
-        OPEN_AI_KEY: ${{ env.OPEN_AI_KEY }}
-        NSIS_PATH: ${{ env.NSIS_PATH }}
 
     - name: Copy NSIS Script
       run: cp .github/workflows/${{ env.NSIS_SCRIPT }} ${{ github.workspace }}/${{ env.NSIS_SCRIPT }}
 
     - name: Check NSIS Installation
       run: |
-        if (-not (Test-Path ${{ env.NSIS_PATH }})) {
-          Write-Host "NSIS not found at ${{ env.NSIS_PATH }}. Exiting..."
+        if (-not (Test-Path ${{ secrets.NSIS_PATH }})) {
+          Write-Host "NSIS not found at ${{ secrets.NSIS_PATH }}. Exiting..."
           exit 1
         }
 
     - name: Compile Installer
-      run: ${{ env.NSIS_PATH }} "${{ github.workspace }}/${{ env.NSIS_SCRIPT }}" -Wait
+      run: ${{ secrets.NSIS_PATH }} "${{ github.workspace }}/${{ env.NSIS_SCRIPT }}" -Wait
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
