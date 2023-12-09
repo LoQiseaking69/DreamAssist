@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main  # Adjust to your main branch name
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  PIP_CACHE_DIR: '~/.cache/pip'
+  NSIS_PATH: 'C:\Program Files (x86)\NSIS\makensis.exe'
+  BUILD_DIR: 'dist'
+  ADDITIONAL_DATA: '"Favicon.png;." "cyber_background.png;." "Bg.PNG;."'
+  NSIS_SCRIPT: 'installer.nsi'
 
 jobs:
   build-and-package:
@@ -17,12 +26,12 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'  # Specify your desired Python version
+        python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Cache Python Dependencies
       uses: actions/cache@v2
       with:
-        path: ~/.cache/pip
+        path: ${{ env.PIP_CACHE_DIR }}
         key: python-dependencies-${{ hashFiles('**/requirements.txt') }}
         restore-keys: python-dependencies-
 
@@ -32,26 +41,24 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build with PyInstaller
-      run: pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
+      run: pyinstaller --onefile --windowed --add-data ${{ env.ADDITIONAL_DATA }} TUI.py
       working-directory: ${{ github.workspace }}
 
     - name: Copy NSIS Script
-      run: cp .github/workflows/installer.nsi ${{ github.workspace }}/installer.nsi
+      run: cp .github/workflows/${{ env.NSIS_SCRIPT }} ${{ github.workspace }}/${{ env.NSIS_SCRIPT }}
 
     - name: Check NSIS Installation
       run: |
-        $nsisPath = "C:\Program Files (x86)\NSIS\makensis.exe"
-        if (-not (Test-Path $nsisPath)) {
-          Write-Host "NSIS not found at $nsisPath. Exiting..."
+        if (-not (Test-Path ${{ env.NSIS_PATH }})) {
+          Write-Host "NSIS not found at ${{ env.NSIS_PATH }}. Exiting..."
           exit 1
         }
 
     - name: Compile Installer
-      run: |
-        & $nsisPath "${{ github.workspace }}/installer.nsi" -Wait
+      run: & ${{ env.NSIS_PATH }} "${{ github.workspace }}/${{ env.NSIS_SCRIPT }}" -Wait
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
         name: Packaged-App-${{ github.run_id }}
-        path: dist/  # Adjust the path to your PyInstaller output directory
+        path: ${{ env.BUILD_DIR }}/
