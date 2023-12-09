@@ -12,6 +12,7 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch: # Add this trigger for manual execution
 
 jobs:
   build-and-package:
@@ -25,7 +26,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.10'  # Specify your Python version
+        python-version: '3.11'  # Specify your Python version
 
     - name: Cache Python Dependencies
       uses: actions/cache@v2
