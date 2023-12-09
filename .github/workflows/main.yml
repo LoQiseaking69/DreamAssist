@@ -41,18 +41,26 @@ jobs:
     - name: Copy NSIS Script
       run: cp installer.nsi ${{ github.workspace }}/installer.nsi
 
-    - name: Compile Installer
+    - name: Check NSIS Installation
       run: |
         $nsisPath = "C:\Program Files (x86)\NSIS\makensis.exe"
-        if (Test-Path $nsisPath) {
-          & $nsisPath "${{ github.workspace }}/installer.nsi" -Wait
-        } else {
+        if (-not (Test-Path $nsisPath)) {
           Write-Host "NSIS not found at $nsisPath. Exiting..."
           exit 1
         }
+
+    - name: Compile Installer
+      run: |
+        & "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}/installer.nsi" -Wait
 
     - name: Upload Packaged Application
       uses: actions/upload-artifact@v2
       with:
         name: Packaged-App-${{ github.run_id }}
         path: dist/
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Build-Artifact-${{ github.run_id }}
+        path: "${{ github.workspace }}/path/to/your/build/artifact"
