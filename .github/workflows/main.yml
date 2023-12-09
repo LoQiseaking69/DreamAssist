@@ -39,11 +39,10 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed ^
-            --add-data "Favicon.png;." ^
-            --add-data "cyber_background.png;." ^
+          & pyinstaller --onefile --windowed `
+            --add-data "Favicon.png;." `
+            --add-data "cyber_background.png;." `
             --add-data "Bg.PNG;." TUI.py
-        working-directory: ${{ github.workspace }}
         shell: pwsh
 
       - name: Copy NSIS Script
