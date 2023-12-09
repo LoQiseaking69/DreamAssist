@@ -26,14 +26,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'  # Specify your Python version
+        python-version: '3.11'
 
     - name: Cache Python Dependencies
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: ${{ runner.os }}-pip-
+        key: python-dependencies-${{ hashFiles('**/requirements.txt') }}
 
     - name: Install Python Dependencies
       run: |
@@ -41,10 +40,15 @@ jobs:
         pip install -r requirements.txt
 
     - name: Package Application with PyInstaller
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPEN_AI_KEY }}
       run: |
         pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
+
+    - name: Copy NSIS Script
+      run: cp installer.nsi ${{ github.workspace }}/installer.nsi
+
+    - name: Compile Installer
+      run: |
+        Start-Process "C:\Program Files (x86)\NSIS\makensis.exe" -ArgumentList "${{ github.workspace }}/installer.nsi" -Wait
 
     - name: Upload Packaged Application
       uses: actions/upload-artifact@v2
