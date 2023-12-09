@@ -23,17 +23,17 @@
 Section "DreamAssist Application" SEC_APPLICATION
   SetOutPath $INSTDIR
   File /r "dist\*.*" ; Include all files from your 'dist' folder
-  CreateShortCut "$DESKTOP\DreamAssist.lnk" "$INSTDIR\$PRODUCT_EXECUTABLE" ; Create a desktop shortcut
+  CreateShortCut "$DESKTOP\DreamAssist.lnk" "$INSTDIR\DreamAssist.exe" ; Create a desktop shortcut
 SectionEnd
 
 ; Installer functions
 Function .onInit
-  StrCpy $INSTDIR $PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}
+  StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
   CreateDirectory $INSTDIR
 FunctionEnd
 
 Function un.onInit
-  StrCpy $INSTDIR $PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}
+  StrCpy $INSTDIR "$PROGRAMFILES\${PRODUCT_PUBLISHER}\${PRODUCT_NAME}"
 FunctionEnd
 
 ; Uninstaller section
