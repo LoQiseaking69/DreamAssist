@@ -3,10 +3,7 @@ name: Build and Package with PyInstaller
 on:
   push:
     branches:
-      - [main, master]
-    paths:
-      - '**.py'
-      - '**/requirements.txt'
+      - main  # Adjust to your main branch name
 
 jobs:
   build-and-package:
@@ -20,25 +17,20 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'
+        python-version: '3.11'  # Specify your desired Python version
 
-    - name: Cache Python Dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: python-dependencies-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: python-dependencies-
-
-    - name: Install Python Dependencies
+    - name: Install Dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install --upgrade pip
+        pip install -r requirements.txt  # Replace with your dependencies file name
 
-    - name: Package Application
-      run: pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
+      working-directory: ${{ github.workspace }}
 
     - name: Copy NSIS Script
-      run: cp installer.nsi ${{ github.workspace }}/installer.nsi
+      run: cp .github/workflows/installer.nsi ${{ github.workspace }}/installer.nsi
 
     - name: Check NSIS Installation
       run: |
@@ -50,16 +42,10 @@ jobs:
 
     - name: Compile Installer
       run: |
-        & "C:\Program Files (x86)\NSIS\makensis.exe" "${{ github.workspace }}/installer.nsi" -Wait
+        & $nsisPath "${{ github.workspace }}/installer.nsi" -Wait
 
-    - name: Upload Packaged Application
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
         name: Packaged-App-${{ github.run_id }}
-        path: dist/
-
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: Build-Artifact-${{ github.run_id }}
-        path: "${{ github.workspace }}/path/to/your/build/artifact"
+        path: dist/  # Adjust the path to your PyInstaller output directory
