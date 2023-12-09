@@ -2,15 +2,20 @@ import sys
 import os
 import asyncio
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, QLabel
-from PyQt5.QtGui import QPixmap, QPainter, QBrush
+from PyQt5.QtGui import QPixmap, QPainter, QBrush, QIcon
 from PyQt5.QtCore import Qt, QRunnable, QThreadPool, QObject, pyqtSignal
 from openai import AsyncOpenAI
-from PyQt5.QtGui import QIcon
+
+# Function to find the correct path for resources (images, etc.)
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 class BackgroundLabel(QLabel):
     def __init__(self, imagePath, parent=None):
         super().__init__(parent)
-        self.pixmap = QPixmap(imagePath)
+        self.pixmap = QPixmap(resource_path(imagePath))
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -59,8 +64,8 @@ class ChatApp(QMainWindow):
     def initUI(self):
         self.setWindowTitle("DreamAssist")
         self.setGeometry(100, 100, 1200, 600)
-        self.setWindowIcon(QIcon('Favicon.png'))
-        self.backgroundLabel = BackgroundLabel("cyber_background.png")  # Replace with your image path
+        self.setWindowIcon(QIcon(resource_path('Favicon.png')))
+        self.backgroundLabel = BackgroundLabel("cyber_background.png")  # Image path is now handled by resource_path
         self.setCentralWidget(self.backgroundLabel)
 
         # Main horizontal layout
@@ -80,7 +85,7 @@ class ChatApp(QMainWindow):
         self.chatBox.setReadOnly(True)
         self.chatBox.setStyleSheet("""
             background-color: rgba(0, 0, 255, 0.3); 
-            background-image: url('Bg.PNG');
+            background-image: url('""" + resource_path('Bg.PNG') + """');
             color: white;
             font: 18pt;
         """)
