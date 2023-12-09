@@ -9,7 +9,6 @@ on:
 env:
   PYTHON_VERSION: '3.11'
   PIP_CACHE_DIR: '~/.cache/pip'
-  NSIS_PATH: 'C:\Program Files (x86)\NSIS\makensis.exe'
   BUILD_DIR: 'dist'
   NSIS_SCRIPT: 'installer.nsi'
 
@@ -17,6 +16,9 @@ jobs:
   build-and-package:
     name: Build and Package
     runs-on: windows-latest
+    env:
+      OPEN_AI_KEY: ${{ secrets.OPEN_AI_KEY }}
+      NSIS_PATH: ${{ secrets.NSIS_PATH }}
 
     steps:
     - name: Checkout Repository
@@ -43,6 +45,15 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --add-data "Favicon.png;." --add-data "cyber_background.png;." --add-data "Bg.PNG;." TUI.py
       working-directory: ${{ github.workspace }}
+      shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+      env:
+        PYTHON_VERSION: 3.11
+        PIP_CACHE_DIR: ~/.cache/pip
+        BUILD_DIR: dist
+        NSIS_SCRIPT: installer.nsi
+        pythonLocation: C:\hostedtoolcache\windows\Python\3.11.7\x64
+        OPEN_AI_KEY: ${{ env.OPEN_AI_KEY }}
+        NSIS_PATH: ${{ env.NSIS_PATH }}
 
     - name: Copy NSIS Script
       run: cp .github/workflows/${{ env.NSIS_SCRIPT }} ${{ github.workspace }}/${{ env.NSIS_SCRIPT }}
